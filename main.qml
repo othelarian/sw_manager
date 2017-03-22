@@ -22,6 +22,34 @@ Window {
         //
         mainStack.push(gameScreen)
     }
+    function gameStackPush(screen) {
+        //
+        if (gameStack.screenPop[screen] === 0) {
+            //
+            console.log("get in")
+            //
+            if (gameStack.screenPop.current != "")
+                gameStack.screenPop[gameStack.screenPop.current] = 0
+            //
+            console.log("CP 2 passed")
+            //
+            gameStack.screenPop.current = screen
+            gameStack.screenPop[screen] = 1
+            gameStack.push(screen)
+            //
+        }
+        else if (gameStack.screenPop[screen] === 1) {
+            //
+            gameStack.current = ""
+            gameStack.pop(gameinfosScreen)
+            //
+        }
+        //
+    }
+    function gameStackPop(screen) {
+        //
+        //
+    }
     // main stack
     StackView {
         id: mainStack
@@ -93,22 +121,21 @@ Window {
                 anchors.right: parent.right; anchors.rightMargin: 100
                 initialItem: gameinfosScreen
                 // game screens properties
-                property bool dicerollerPop: false
-                property bool deckPop: false
-                property bool charsPop: false
-                property bool extrasPop: false
-                property bool locationPop: false
-                property bool historyPop: false
-                property bool storiesPop: false
-                property bool sessionsPop: false
+                property var screenPop: {
+                    "current": "",
+                    "dicerollerScreen": 0, "deckScreen":0,
+                    "charsScreen": 0, "extrasScreen": 0,
+                    "locationScreen": 0, "historyScreen": 0,
+                    "storiesScreen": 0, "sessionsScreen": 0
+                }
+                // animation of the stack
+                //
+                // TODO : describe the animation
+                //
                 // game infos screen
                 Item {
                     id: gameinfosScreen
-                    Rectangle {
-                        color: "white"
-                        border.color: "gray"
-                        //border.
-                    }
+                    Rectangle { color: "white"; border.color: "#bbb"; border.width: 1; anchors.fill: parent }
                     //
                     Text { text: "game infos" }
                     //
@@ -117,16 +144,17 @@ Window {
                 Item {
                     id: dicerollerScreen
                     visible: false
+                    Rectangle { color: "white"; border.color: "#bbb"; border.width: 1; anchors.fill: parent }
                     //
                     //Rectangle { color: "red"; anchors.fill: parent }
                     //
+                    Text { text: "diceroller screen" }
                     //
                     Button {
                         width: gameScreen.btnheight; height: gameScreen.btnheight
                         text: "Close"
                         onClicked: {
                             //
-                            gameStack.pop()
                             //
                         }
                     }
@@ -144,7 +172,7 @@ Window {
                     text: "Roll"
                     onClicked: {
                         //
-                        gameStack.push(dicerollerScreen)
+                        gameStackPush("dicerollerScreen")
                         //
                     }
                 }
