@@ -1,8 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>main.qml</file>
-        <file>Items/SWButton.qml</file>
-        <file>Items/SWDiceWindow.qml</file>
-        <file>Items/SWSpinBox.qml</file>
+        <file>Screens/DiceRollerScreen.qml</file>
     </qresource>
 </RCC>

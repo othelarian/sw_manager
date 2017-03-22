@@ -7,29 +7,32 @@ Window {
     id: root
     visible: true
     width: 640
-    minimumWidth: width
+    minimumWidth: 640
     height: 480
-    minimumHeight: height
+    minimumHeight: 480
     title: "Savage Worlds Manager"
-
-    //
-    // TODO : button to open dice roller
-    // TODO : welcome form
-    //
-
     // properties
     property bool createdbStatus
+    property string dbpath
+    // functions
+    function loadgame() {
+        //
+        swmdb.openDatabase(dbpath,createdbStatus)
+        //
+        //
+        mainStack.push(gameScreen)
+    }
     // main stack
     StackView {
         id: mainStack
         anchors.fill: parent
         initialItem: welcomeView
         // welcome screena
-        Component {
+        Item {
             id: welcomeView
             Column {
                 width: 300
-                anchors.centerIn: mainStack
+                anchors.horizontalCenter: parent.horizontalCenter
                 padding: 40
                 spacing: 10
                 Label {
@@ -37,15 +40,13 @@ Window {
                     font.pointSize: 22
                     text: "Welcome to the Savage Worlds Manager!"
                 }
+                // TODO : add the 5 last editing
                 Row {
                     anchors.horizontalCenter: parent.horizontalCenter
                     spacing: 4
                     Button {
                         text: "Select a game"
                         onClicked: {
-                            //
-                            //mainStack.push(gameScreen)
-                            //
                             createdbStatus = false
                             dbDialog.title = "Select a game (.swdb)"
                             dbDialog.nameFilters = ["SWM game (*.swdb)"]
@@ -71,33 +72,130 @@ Window {
             }
         }
         // game screen
-        Component {
+        Item {
             id: gameScreen
-            Text {
-                text: "this is the game screen"
+            visible: false
+            //
+            //anchors.fill: parent
+            //
+            property int btnwidth: 60
+            property int btnheight: 22
+            TextField {
+                x: 10; y: 10
+                placeholderText: "Untitled"
+            }
+            // game stack
+            StackView {
+                id: gameStack
+                anchors.bottom: parent.bottom
+                anchors.top: parent.top; anchors.topMargin: 100
+                anchors.left: parent.left; anchors.leftMargin: 50
+                anchors.right: parent.right; anchors.rightMargin: 100
+                initialItem: gameinfosScreen
+                // game screens properties
+                property bool dicerollerPop: false
+                property bool deckPop: false
+                property bool charsPop: false
+                property bool extrasPop: false
+                property bool locationPop: false
+                property bool historyPop: false
+                property bool storiesPop: false
+                property bool sessionsPop: false
+                // game infos screen
+                Item {
+                    id: gameinfosScreen
+                    Rectangle {
+                        color: "white"
+                        border.color: "gray"
+                        //border.
+                    }
+                    //
+                    Text { text: "game infos" }
+                    //
+                }
+                // diceroller screen
+                Item {
+                    id: dicerollerScreen
+                    visible: false
+                    //
+                    //Rectangle { color: "red"; anchors.fill: parent }
+                    //
+                    //
+                    Button {
+                        width: gameScreen.btnheight; height: gameScreen.btnheight
+                        text: "Close"
+                        onClicked: {
+                            //
+                            gameStack.pop()
+                            //
+                        }
+                    }
+                }
+                //
+            }
+            // right side menu
+            Column {
+                width: 60
+                anchors.right: parent.right; anchors.rightMargin: 0
+                anchors.top: parent.top; anchors.topMargin: 20
+                spacing: 4
+                Button {
+                    width: gameScreen.btnwidth; height: gameScreen.btnheight
+                    text: "Roll"
+                    onClicked: {
+                        //
+                        gameStack.push(dicerollerScreen)
+                        //
+                    }
+                }
+                Button {
+                    //
+                    width: gameScreen.btnwidth; height: gameScreen.btnheight
+                    text: "Deck"
+                    //
+                }
+                Button {
+                    //
+                    width: gameScreen.btnwidth; height: gameScreen.btnheight
+                    text: "Chars"
+                    //
+                }
+                Button {
+                    width: gameScreen.btnwidth;height: gameScreen.btnheight
+                    text: "Close"
+                    onClicked: {
+                        //
+                        mainStack.pop()
+                        //
+                    }
+                }
             }
         }
     }
-
     // select / create database dialog
     FileDialog {
         id: dbDialog
         title: ""
         folder: shortcuts.home
         onAccepted: {
-            if (createdbStatus) {
-                //
-                // TODO : open new dialog to enter the name
-                //
-            }
-            else {
-                //
-                //
-                //
-                mainStack.push(gameScreen)
-            }
+            dbpath = fileUrl
+            if (createdbStatus) nameDialog.open()
+            else loadgame()
         }
     }
     // enter the name of the game file
-    //
+    Dialog {
+        id: nameDialog
+        title: "Name of the game save"
+        standardButtons: Dialog.Ok | Dialog.Cancel
+        onAccepted: {
+            dbpath += "/"+nameTextField.text+".swdb"
+            loadgame()
+        }
+        Column {
+            spacing: 4
+            Label { text: "Enter the name of the file :" }
+            TextField { id: nameTextField }
+        }
+    }
 }
