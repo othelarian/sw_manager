@@ -17,16 +17,32 @@ SWMDatabase* SWMDatabase::getInstance()
 
 void SWMDatabase::openDatabase(QString path,bool create)
 {
+    m_db.setDatabaseName(QUrl(path).toLocalFile());
+    m_db.open();
+    QSqlQuery query;
+    // populate the database if it's a creation
+    if (create) {
+        query.exec("CREATE TABLE parameters (name TEXT,value TEXT);");
+        query.exec("CREATE TABLE outputs (type TEXT,value TEXT,outorder INT);");
+        query.exec("CREATE TABLE decks (name TEXT,cardorder INT,value INT);");
+        QStringList values;
+        values << "('title','')";
+        //
+        query.exec("INSERT INTO parameters VALUES"+values.join(",")+";");
+    }
     //
-    qInfo("try to open database...");
-    //
-    qInfo() << path;
-    //
-    //m_db.setDatabaseName(path);
-    //QSqlQuery query;
     //query.prepare();
+    //
+    //query.exec("SELECT * FROM parameters;");
     //
     //
 }
 
-void SWMDatabase::closeDatabase() { m_db.close(); }
+void SWMDatabase::closeDatabase() {
+    //
+    // TODO : optimize the database
+    //
+    //QSqlQuery query("REINDEX;");
+    //
+    m_db.close();
+}

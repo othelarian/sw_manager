@@ -1,7 +1,9 @@
-import QtQuick 2.7
+import QtQuick 2.8
 import QtQuick.Window 2.2
 import QtQuick.Controls 2.1
-import QtQuick.Dialogs 1.2
+import QtQuick.Dialogs 1.2 as D
+
+import "Screens"
 
 Window {
     id: root
@@ -22,31 +24,29 @@ Window {
         //
         mainStack.push(gameScreen)
     }
-    function gameStackPush(screen) {
-        //
+    function gameStackChange(screen) {
         if (gameStack.screenPop[screen] === 0) {
-            //
-            console.log("get in")
-            //
-            if (gameStack.screenPop.current != "")
-                gameStack.screenPop[gameStack.screenPop.current] = 0
-            //
-            console.log("CP 2 passed")
-            //
+            if (gameStack.screenPop.current != "") gameStack.screenPop[gameStack.screenPop.current] = 0
             gameStack.screenPop.current = screen
             gameStack.screenPop[screen] = 1
-            gameStack.push(screen)
-            //
+            switch (screen) {
+            case "diceroller": gameStack.push(dicerollerScreen); break;
+            case "deck": gameStack.push(deckScreen); break;
+            case "rules": gameStack.push(rulesScreen); break;
+            case "chars": gameStack.push(charsScreen); break;
+            case "extras": gameStack.push(extrasScreen); break;
+                //
+                //
+            }
         }
         else if (gameStack.screenPop[screen] === 1) {
-            //
-            gameStack.current = ""
+            gameStack.screenPop.current = ""
+            gameStack.screenPop[screen] = 0
             gameStack.pop(gameinfosScreen)
-            //
         }
-        //
     }
-    function gameStackPop(screen) {
+    function gameStackSeparate(screen) {
+        //
         //
         //
     }
@@ -59,10 +59,8 @@ Window {
         Item {
             id: welcomeView
             Column {
-                width: 300
+                width: 300; padding: 40; spacing: 10
                 anchors.horizontalCenter: parent.horizontalCenter
-                padding: 40
-                spacing: 10
                 Label {
                     anchors.horizontalCenter: parent.horizontalCenter
                     font.pointSize: 22
@@ -103,108 +101,151 @@ Window {
         Item {
             id: gameScreen
             visible: false
-            //
-            //anchors.fill: parent
-            //
-            property int btnwidth: 60
+            property int btnwidth: 75
             property int btnheight: 22
             TextField {
                 x: 10; y: 10
                 placeholderText: "Untitled"
+                //
+                //
             }
             // game stack
             StackView {
                 id: gameStack
                 anchors.bottom: parent.bottom
-                anchors.top: parent.top; anchors.topMargin: 100
-                anchors.left: parent.left; anchors.leftMargin: 50
+                anchors.top: parent.top; anchors.topMargin: 60
+                anchors.left: parent.left; anchors.leftMargin: 40
                 anchors.right: parent.right; anchors.rightMargin: 100
                 initialItem: gameinfosScreen
                 // game screens properties
                 property var screenPop: {
                     "current": "",
-                    "dicerollerScreen": 0, "deckScreen":0,
-                    "charsScreen": 0, "extrasScreen": 0,
-                    "locationScreen": 0, "historyScreen": 0,
-                    "storiesScreen": 0, "sessionsScreen": 0
+                    "diceroller": 0, "deck":0, "rules": 0, "chars": 0, "extras": 0,
+                    "location": 0, "history": 0, "stories": 0, "sessions": 0
                 }
                 // animation of the stack
-                //
-                // TODO : describe the animation
-                //
-                // game infos screen
-                Item {
-                    id: gameinfosScreen
-                    Rectangle { color: "white"; border.color: "#bbb"; border.width: 1; anchors.fill: parent }
-                    //
-                    Text { text: "game infos" }
-                    //
-                }
-                // diceroller screen
-                Item {
-                    id: dicerollerScreen
-                    visible: false
-                    Rectangle { color: "white"; border.color: "#bbb"; border.width: 1; anchors.fill: parent }
-                    //
-                    //Rectangle { color: "red"; anchors.fill: parent }
-                    //
-                    Text { text: "diceroller screen" }
-                    //
-                    Button {
-                        width: gameScreen.btnheight; height: gameScreen.btnheight
-                        text: "Close"
-                        onClicked: {
-                            //
-                            //
-                        }
+                Transition {
+                    id: enterAnim
+                    YAnimator {
+                        from: (gameStack.mirrored ? -1 : 1)*gameStack.height
+                        to: 0; duration: 400; easing.type: Easing.OutCubic
                     }
                 }
-                //
+                Transition {
+                    id: exitAnim
+                    YAnimator {
+                        to: (gameStack.mirrored ? -1 : 1)*gameStack.height
+                        from: 0; duration: 400; easing.type: Easing.OutCubic
+                    }
+                }
+                pushEnter: enterAnim; pushExit: exitAnim
+                popEnter: enterAnim; popExit: exitAnim
+                // game infos screen
+                GameScreen {
+                    id: gameinfosScreen
+                    title: "Game infos"
+                    InfosScreen {}
+                }
+                // diceroller screen
+                GameScreen {
+                    id: dicerollerScreen
+                    title: "Dice Roller"
+                    btnUse: true; link: "diceroller"
+                    DiceRollerScreen {}
+                }
+                // deck screen
+                GameScreen {
+                    //
+                    id: deckScreen
+                    title: "Deck"
+                    btnUse: true; link: "deck"
+                    //
+                }
+                // rules screen
+                GameScreen {
+                    //
+                    id: rulesScreen
+                    title: "Rules"
+                    btnUse: true; link: "rules"
+                    //
+                }
+                // characters screen
+                GameScreen {
+                    id: charsScreen
+                    title: "Characters"
+                    btnUse: true; link: "chars"
+                    //
+                }
+                // extras screen
+                GameScreen {
+                    id: extrasScreen
+                    title: "Bestiary"
+                    //
+                }
             }
             // right side menu
             Column {
-                width: 60
+                width: gameScreen.btnwidth
                 anchors.right: parent.right; anchors.rightMargin: 0
                 anchors.top: parent.top; anchors.topMargin: 20
                 spacing: 4
                 Button {
                     width: gameScreen.btnwidth; height: gameScreen.btnheight
                     text: "Roll"
-                    onClicked: {
-                        //
-                        gameStackPush("dicerollerScreen")
-                        //
-                    }
+                    onClicked: { gameStackChange("diceroller") }
                 }
                 Button {
-                    //
                     width: gameScreen.btnwidth; height: gameScreen.btnheight
                     text: "Deck"
+                    onClicked: { gameStackChange("deck") }
+                }
+                Button {
+                    width: gameScreen.btnwidth; height: gameScreen.btnheight
+                    text: "Rules"
+                    onClicked: { gameStackChange("rules") }
+                }
+                Button {
+                    width: gameScreen.btnwidth; height: gameScreen.btnheight
+                    text: "Chars"
+                    onClicked: { gameStackChange("chars") }
+                }
+                Button {
+                    width: gameScreen.btnwidth; height: gameScreen.btnheight
+                    text: "Bestiary"
                     //
                 }
                 Button {
-                    //
                     width: gameScreen.btnwidth; height: gameScreen.btnheight
-                    text: "Chars"
+                    text: "Location"
+                    //
+                }
+                Button {
+                    width: gameScreen.btnwidth; height: gameScreen.btnheight
+                    text: "History"
+                    //
+                }
+                Button {
+                    width: gameScreen.btnwidth; height: gameScreen.btnheight
+                    text: "Stories"
+                    //
+                }
+                Button {
+                    width: gameScreen.btnwidth; height: gameScreen.btnheight
+                    text: "Sessions"
                     //
                 }
                 Button {
                     width: gameScreen.btnwidth;height: gameScreen.btnheight
                     text: "Close"
-                    onClicked: {
-                        //
-                        mainStack.pop()
-                        //
-                    }
+                    onClicked: { swmdb.closeDatabase(); mainStack.pop() }
                 }
             }
         }
     }
     // select / create database dialog
-    FileDialog {
+    D.FileDialog {
         id: dbDialog
-        title: ""
-        folder: shortcuts.home
+        title: ""; folder: shortcuts.home
         onAccepted: {
             dbpath = fileUrl
             if (createdbStatus) nameDialog.open()
@@ -212,18 +253,22 @@ Window {
         }
     }
     // enter the name of the game file
-    Dialog {
+    D.Dialog {
         id: nameDialog
         title: "Name of the game save"
         standardButtons: Dialog.Ok | Dialog.Cancel
         onAccepted: {
+            if (nameTextField.text == "") return
             dbpath += "/"+nameTextField.text+".swdb"
             loadgame()
         }
         Column {
             spacing: 4
-            Label { text: "Enter the name of the file :" }
-            TextField { id: nameTextField }
+            Label { text: "Enter the name of the file :"; anchors.horizontalCenter: parent.horizontalCenter }
+            Row {
+                TextField { id: nameTextField; height: 25 }
+                Label { text: ".swdb"; anchors.verticalCenter: parent.verticalCenter }
+            }
         }
     }
 }

@@ -3,6 +3,10 @@
 
 #include <QObject>
 #include <QSqlDatabase>
+#include <QUrl>
+#include <QSqlQuery>
+
+//#include <QSqlError>
 
 class SWMDatabase : public QObject
 {
