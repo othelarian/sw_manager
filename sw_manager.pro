@@ -4,7 +4,9 @@ QT += qml quick sql
 CONFIG += c++11
 
 SOURCES += main.cpp \
-    classes/swmdatabase.cpp
+    classes/swmdatabase.cpp \
+    classes/diceroller.cpp \
+    classes/deck.cpp
 
 RESOURCES += qml.qrc
 
@@ -31,4 +33,6 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 HEADERS += \
-    classes/swmdatabase.h
+    classes/swmdatabase.h \
+    classes/diceroller.h \
+    classes/deck.h

@@ -8,23 +8,37 @@ import "Screens"
 Window {
     id: root
     visible: true
-    width: 640
-    minimumWidth: 640
-    height: 480
-    minimumHeight: 480
+    width: 640; minimumWidth: 640
+    height: 480; minimumHeight: 480
     title: "Savage Worlds Manager"
+    onClosing: { if (loaded) swmdb.closeDatabase() }
     // properties
     property bool createdbStatus
     property string dbpath
+    property bool loaded: false
     // functions
     function loadgame() {
-        //
         swmdb.openDatabase(dbpath,createdbStatus)
+        var infos = swmdb.getInfos()
         //
+        // TODO : parse the infos
         //
+        gameTitle.text = infos
+        infosIn1.titleLab = infos
+        //
+        loaded = true
         mainStack.push(gameScreen)
     }
     function gameStackChange(screen) {
+        // initialize a game screen if needed
+        if (gameStack.screenPop[screen] === -1) {
+            //
+            // TODO : call the init
+            //
+            //
+            gameStack.screenPop[screen] = 0
+        }
+        // open / close a game screen
         if (gameStack.screenPop[screen] === 0) {
             if (gameStack.screenPop.current != "") gameStack.screenPop[gameStack.screenPop.current] = 0
             gameStack.screenPop.current = screen
@@ -46,10 +60,17 @@ Window {
         }
     }
     function gameStackSeparate(screen) {
-        //
-        //
-        //
+        if (gameStack.screenPop[screen] === 2) return
+        else if (gameStack.screenPop[screen] == 1) gameStackChange(screen)
+        gameStack.screenPop[screen] = 2
+        switch (screen) {
+        case "diceroller": dicerollerWin.show(); break;
+        case "deck": deckWin.show(); break;
+        case "rules": rulesWin.show(); break;
+            //
+        }
     }
+    function gameStackReintegrate(screen) { gameStack.screenPop[screen] = 0 }
     // main stack
     StackView {
         id: mainStack
@@ -103,11 +124,10 @@ Window {
             visible: false
             property int btnwidth: 75
             property int btnheight: 22
-            TextField {
-                x: 10; y: 10
-                placeholderText: "Untitled"
-                //
-                //
+            Label {
+                id: gameTitle
+                x: 10; y: 10; text: ""
+                font.pointSize: 20; font.bold: true
             }
             // game stack
             StackView {
@@ -120,8 +140,9 @@ Window {
                 // game screens properties
                 property var screenPop: {
                     "current": "",
-                    "diceroller": 0, "deck":0, "rules": 0, "chars": 0, "extras": 0,
-                    "location": 0, "history": 0, "stories": 0, "sessions": 0
+                    "diceroller": -1, "deck": -1, "rules": -1,
+                    "chars": -1, "extras": -1, "location": -1,
+                    "history": -1, "stories": -1, "sessions": -1
                 }
                 // animation of the stack
                 Transition {
@@ -140,42 +161,12 @@ Window {
                 }
                 pushEnter: enterAnim; pushExit: exitAnim
                 popEnter: enterAnim; popExit: exitAnim
-                // game infos screen
-                GameScreen {
-                    id: gameinfosScreen
-                    title: "Game infos"
-                    InfosScreen {}
-                }
-                // diceroller screen
-                GameScreen {
-                    id: dicerollerScreen
-                    title: "Dice Roller"
-                    btnUse: true; link: "diceroller"
-                    DiceRollerScreen {}
-                }
-                // deck screen
-                GameScreen {
-                    //
-                    id: deckScreen
-                    title: "Deck"
-                    btnUse: true; link: "deck"
-                    //
-                }
-                // rules screen
-                GameScreen {
-                    //
-                    id: rulesScreen
-                    title: "Rules"
-                    btnUse: true; link: "rules"
-                    //
-                }
-                // characters screen
-                GameScreen {
-                    id: charsScreen
-                    title: "Characters"
-                    btnUse: true; link: "chars"
-                    //
-                }
+                // game screens
+                GameScreen { id: gameinfosScreen; title: "Game infos"; InfosScreen { id: infosIn1 } }
+                GameScreen { id: dicerollerScreen; title: "Dice Roller"; link: "diceroller"; DiceRollerScreen { id: dicerollerIn1 } }
+                GameScreen { id: deckScreen; title: "Deck"; link: "deck"; DeckScreen { id: deckIn1 } }
+                GameScreen { id: rulesScreen; title: "Rules"; link: "rules"; RulesScreen { id: rulesIn1 } }
+                GameScreen { id: charsScreen; title: "Characters"; link: "chars"; CharsScreen { id: charsIn1 } }
                 // extras screen
                 GameScreen {
                     id: extrasScreen
@@ -212,12 +203,12 @@ Window {
                 Button {
                     width: gameScreen.btnwidth; height: gameScreen.btnheight
                     text: "Bestiary"
-                    //
+                    onClicked: { gameStackChange("extras") }
                 }
                 Button {
                     width: gameScreen.btnwidth; height: gameScreen.btnheight
                     text: "Location"
-                    //
+                    onClicked: { gameStackChange("location") }
                 }
                 Button {
                     width: gameScreen.btnwidth; height: gameScreen.btnheight
@@ -237,11 +228,35 @@ Window {
                 Button {
                     width: gameScreen.btnwidth;height: gameScreen.btnheight
                     text: "Close"
-                    onClicked: { swmdb.closeDatabase(); mainStack.pop() }
+                    onClicked: {
+                        if (gameStack.screenPop.diceroller === 2) dicerollerWin.close()
+                        if (gameStack.screenPop.deck === 2) deckWin.close()
+                        if (gameStack.screenPop.rules === 2) rulesWin.close()
+                        if (gameStack.screenPop.chars === 2) charsWin.close()
+                        //
+                        // TODO : close all opened window
+                        //
+                        var lstlinks = ["diceroller","deck","rules",
+                                        "chars","extras","location",
+                                        "history","stories","sessions"]
+                        for (var i=0;i<lstlinks.length;i++) {
+                            if (gameStack.screenPop[lstlinks[i]] == 1) gameStackChange(lstlinks[i])
+                            gameStack.screenPop[lstlinks[i]] = -1
+                        }
+                        swmdb.closeDatabase(); loaded = false; mainStack.pop()
+                    }
                 }
             }
         }
     }
+    // game screens separated
+    WindowScreen { id: dicerollerWin; title: "Dice Roller"; link: "diceroller"; DiceRollerScreen { id: dicerollerIn2 } }
+    WindowScreen { id: deckWin; title: "Deck"; link: "deck"; DeckScreen { id: deckIn2 } }
+    WindowScreen { id: rulesWin; title: "Rules"; link: "rules"; RulesScreen { id: rulesIn2 } }
+    WindowScreen { id: charsWin; title: "Characters"; link: "chars"; CharsScreen { id: charsIn2 } }
+    //
+    // TODO : add the other wins
+    //
     // select / create database dialog
     D.FileDialog {
         id: dbDialog

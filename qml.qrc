@@ -5,5 +5,8 @@
         <file>Screens/GameScreen.qml</file>
         <file>Screens/DeckScreen.qml</file>
         <file>Screens/InfosScreen.qml</file>
+        <file>Screens/WindowScreen.qml</file>
+        <file>Screens/RulesScreen.qml</file>
+        <file>Screens/CharsScreen.qml</file>
     </qresource>
 </RCC>

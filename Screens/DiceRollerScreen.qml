@@ -24,6 +24,10 @@ Item {
                 height: gameScreen.btnheight; editable: true
                 font.pointSize: 12
                 validator: IntValidator { bottom: 1; top: 100 }
+                onValueChanged: {
+                    //
+                    //
+                }
             }
             Label { text: "Bonus/Malus:" }
             SpinBox {
@@ -32,11 +36,19 @@ Item {
                 height: gameScreen.btnheight; editable: true
                 font.pointSize: 12
                 validator: IntValidator { bottom: -100; top: 100 }
+                onValueChanged: {
+                    //
+                    //
+                }
             }
-            Button {
-                height: gameScreen.btnheight
-                text: "Roll"
-                onClicked: { rollDice() }
+            ComboBox {
+                id: selectordice
+                width: 90; height: gameScreen.btnheight
+                model: ["d2","d3","d4","d6","d8","d10","d12","d20","d100"]
+                onActivated: {
+                    //
+                    //
+                }
             }
             CheckBox {
                 id: acedice
@@ -45,8 +57,27 @@ Item {
                 indicator: Rectangle {
                     color: acedice.checked ? "#2af" : "white"
                     border.color: "black"; border.width: 1
-                    width: gameScreen-2; height: gameScreen-2
+                    width: gameScreen.btnheight-2
+                    height: gameScreen.btnheight-2
                 }
+                onCheckedChanged: {
+                    //
+                    console.log(checked)
+                    //
+                    //
+                }
+            }
+            Button {
+                height: gameScreen.btnheight
+                text: "Roll"
+                onClicked: { rollDice() }
+            }
+            Button {
+                //
+                height: gameScreen.btnheight
+                //
+                text: "Clear"
+                //
             }
         }
         // dice output
