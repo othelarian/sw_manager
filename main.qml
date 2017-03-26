@@ -35,6 +35,11 @@ Window {
             //
             // TODO : call the init
             //
+            switch (screen) {
+            case "diceroller": dicerollerIn1.initDice(); dicerollerIn2.initDice(); break
+                //
+            }
+            //
             //
             gameStack.screenPop[screen] = 0
         }

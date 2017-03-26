@@ -5,6 +5,21 @@ Item {
     anchors.top: parent.top; anchors.topMargin: 50
     anchors.left: parent.left; anchors.leftMargin: 10
     // functions
+    function initDice() {
+        //
+        console.log("init dice roller")
+        //
+        var params = swmdb.getDiceroller().split(",")
+        //
+        nbdice.value = parseInt(params[0])
+        bonusdice.value = parseInt(params[1])
+        //
+        selectordice.currentIndex = parseInt(params[2])
+        //
+        console.log(params)
+        //
+    }
+    function changeDice(label,value) { swmdb.setDiceroller(label,value) }
     function rollDice() {
         //
         //
@@ -22,24 +37,18 @@ Item {
                 id: nbdice
                 value: 1; from: 1; to: 100
                 height: gameScreen.btnheight; editable: true
-                font.pointSize: 12
+                font.pointSize: 10
                 validator: IntValidator { bottom: 1; top: 100 }
-                onValueChanged: {
-                    //
-                    //
-                }
+                onValueChanged: { changeDice("nbdice",value) }
             }
             Label { text: "Bonus/Malus:" }
             SpinBox {
                 id: bonusdice
                 value: 0; from: -100; to: 100
                 height: gameScreen.btnheight; editable: true
-                font.pointSize: 12
+                font.pointSize: 10
                 validator: IntValidator { bottom: -100; top: 100 }
-                onValueChanged: {
-                    //
-                    //
-                }
+                onValueChanged: { changeDice("bonusdice",value) }
             }
             ComboBox {
                 id: selectordice

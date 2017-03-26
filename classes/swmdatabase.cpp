@@ -28,7 +28,6 @@ void SWMDatabase::openDatabase(QString path,bool create)
         query.exec("CREATE TABLE decks (name TEXT,cardorder INT,value INT);");
         QStringList values;
         values << "('title','Untitled')";
-        //
         values << "('nbdice','1')" << "('bonusdice','0')";
         values << "('selectordice','0')" << "('acedice','0')";
         //
@@ -40,6 +39,10 @@ void SWMDatabase::openDatabase(QString path,bool create)
     int valueNo = query.record().indexOf("value");
     while (query.next()) {
         if (query.value(nameNo).toString() == "title") m_infos.title = query.value(valueNo).toString();
+        else if (query.value(nameNo).toString().endsWith("dice")) {
+            QString label = query.value(nameNo).toString(); label.chop(4);
+            m_diceroller.setParameter(label,query.value(valueNo).toInt());
+        }
         //
         // TODO : get the others paramaters
         //
@@ -91,13 +94,7 @@ void SWMDatabase::setInfos(QString info, int value)
 
 // DICEROLLERS METHODS #############
 
-QString SWMDatabase::getDiceroller()
-{
-    //
-    //
-    return "diceroller getter";
-    //
-}
+QString SWMDatabase::getDiceroller() { return m_diceroller.getParameters(); }
 
 QString SWMDatabase::rollDice()
 {
@@ -110,6 +107,8 @@ QString SWMDatabase::rollDice()
 void SWMDatabase::setDiceroller(QString label, int value)
 {
     //
+    // TODO : really change value
     //
+    qInfo() << "label: " << label << " - value: " << value;
     //
 }
