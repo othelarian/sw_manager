@@ -96,19 +96,24 @@ void SWMDatabase::setInfos(QString info, int value)
 
 QString SWMDatabase::getDiceroller() { return m_diceroller.getParameters(); }
 
+void SWMDatabase::setDiceroller(QString label, int value)
+{
+    //
+    qInfo() << label << " : " << value;
+    //
+    QSqlQuery query;
+    query.prepare("UPDATE parameters SET value=:value WHERE name=:label;");
+    query.bindValue(":value",value);
+    query.bindValue(":label",label+"dice");
+    query.exec();
+    m_diceroller.setParameter(label,value);
+    emit dicerollerChanged();
+}
+
 QString SWMDatabase::rollDice()
 {
     //
     //
     return "dice result";
-    //
-}
-
-void SWMDatabase::setDiceroller(QString label, int value)
-{
-    //
-    // TODO : really change value
-    //
-    qInfo() << "label: " << label << " - value: " << value;
     //
 }

@@ -10,9 +10,8 @@ int main(int argc, char *argv[])
     QGuiApplication app(argc, argv);
     SWMDatabase* swmdb = SWMDatabase::getInstance();
     QQmlApplicationEngine engine;
-    engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
-    // enable database singleton
     engine.rootContext()->setContextProperty("swmdb",swmdb);
+    engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
     // launch the app
     return app.exec();
 }

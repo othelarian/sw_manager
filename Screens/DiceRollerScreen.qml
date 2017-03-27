@@ -4,27 +4,43 @@ import QtQuick.Controls 2.1
 Item {
     anchors.top: parent.top; anchors.topMargin: 50
     anchors.left: parent.left; anchors.leftMargin: 10
+    // properties
+    property bool init
+    property bool maj: false
     // functions
     function initDice() {
+        init = true
+        updateDice()
         //
-        console.log("init dice roller")
+        // TODO : get the outputs
         //
+        init = false
+    }
+    function updateDice() {
         var params = swmdb.getDiceroller().split(",")
-        //
         nbdice.value = parseInt(params[0])
         bonusdice.value = parseInt(params[1])
-        //
         selectordice.currentIndex = parseInt(params[2])
-        //
-        console.log(params)
-        //
+        acedice.checked = (params[3] === "true")? true : false
     }
-    function changeDice(label,value) { swmdb.setDiceroller(label,value) }
+    function changeDice(label,value) {
+        maj = true; swmdb.setDiceroller(label,value)
+    }
     function rollDice() {
         //
+        console.log("roll dice")
+        //
+    }
+    function clearDice() {
+        //
+        console.log("clear dice")
         //
     }
     // elements
+    Connections {
+        target: swmdb
+        onDicerollerChanged: { if (maj) maj = false; else { maj = true; updateDice() } }
+    }
     Row {
         spacing: 10
         // dice form
@@ -39,7 +55,7 @@ Item {
                 height: gameScreen.btnheight; editable: true
                 font.pointSize: 10
                 validator: IntValidator { bottom: 1; top: 100 }
-                onValueChanged: { changeDice("nbdice",value) }
+                onValueChanged: { if (!init) changeDice("nb",value) }
             }
             Label { text: "Bonus/Malus:" }
             SpinBox {
@@ -48,16 +64,13 @@ Item {
                 height: gameScreen.btnheight; editable: true
                 font.pointSize: 10
                 validator: IntValidator { bottom: -100; top: 100 }
-                onValueChanged: { changeDice("bonusdice",value) }
+                onValueChanged: { if (!init) changeDice("bonus",value) }
             }
             ComboBox {
                 id: selectordice
                 width: 90; height: gameScreen.btnheight
                 model: ["d2","d3","d4","d6","d8","d10","d12","d20","d100"]
-                onActivated: {
-                    //
-                    //
-                }
+                onActivated: { if (!init) changeDice("selector",currentIndex) }
             }
             CheckBox {
                 id: acedice
@@ -69,12 +82,7 @@ Item {
                     width: gameScreen.btnheight-2
                     height: gameScreen.btnheight-2
                 }
-                onCheckedChanged: {
-                    //
-                    console.log(checked)
-                    //
-                    //
-                }
+                onCheckedChanged: { if (!init) changeDice("ace",(checked)? 1 : 0) }
             }
             Button {
                 height: gameScreen.btnheight
@@ -82,11 +90,9 @@ Item {
                 onClicked: { rollDice() }
             }
             Button {
-                //
                 height: gameScreen.btnheight
-                //
                 text: "Clear"
-                //
+                onClicked: { clearDice() }
             }
         }
         // dice output
