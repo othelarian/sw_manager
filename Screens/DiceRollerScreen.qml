@@ -26,11 +26,7 @@ Item {
     function changeDice(label,value) {
         maj = true; swmdb.setDiceroller(label,value)
     }
-    function rollDice() {
-        //
-        console.log("roll dice")
-        //
-    }
+    function rollDice() { swmdb.rollDice() }
     function clearDice() {
         //
         console.log("clear dice")

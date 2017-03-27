@@ -69,9 +69,10 @@ Window {
         else if (gameStack.screenPop[screen] == 1) gameStackChange(screen)
         gameStack.screenPop[screen] = 2
         switch (screen) {
-        case "diceroller": dicerollerWin.show(); break;
-        case "deck": deckWin.show(); break;
-        case "rules": rulesWin.show(); break;
+        case "diceroller": dicerollerWin.show(); break
+        case "deck": deckWin.show(); break
+        case "rules": rulesWin.show(); break
+        case "chars": charsWin.show(); break
             //
         }
     }
@@ -172,10 +173,29 @@ Window {
                 GameScreen { id: deckScreen; title: "Deck"; link: "deck"; DeckScreen { id: deckIn1 } }
                 GameScreen { id: rulesScreen; title: "Rules"; link: "rules"; RulesScreen { id: rulesIn1 } }
                 GameScreen { id: charsScreen; title: "Characters"; link: "chars"; CharsScreen { id: charsIn1 } }
-                // extras screen
                 GameScreen {
                     id: extrasScreen
                     title: "Bestiary"
+                    //
+                }
+                GameScreen {
+                    id: locationScreen
+                    title: "Locations"
+                    //
+                }
+                GameScreen {
+                    id: historyScreen
+                    title: "History"
+                    //
+                }
+                GameScreen {
+                    id: storiesScreen
+                    title: "Stories"
+                    //
+                }
+                GameScreen {
+                    id: sessionsScreen
+                    title: "Sessions"
                     //
                 }
             }

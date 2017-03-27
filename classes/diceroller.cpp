@@ -1,14 +1,42 @@
 #include "diceroller.h"
 
+#include <QDebug>
+
 DiceRoller::DiceRoller()
 {
 }
 
-//static void rollDice()
+QString DiceRoller::genRollDice(int nb,int bonus,int selector,bool ace)
+{
+    int types[] = {2,3,4,6,8,10,12,20,100};
+    QString res = "";
+    //
+    int tmp = 0;
+    //
+    //
+    return "";
+    //
+}
 
 QString DiceRoller::rollDice()
 {
     //
+    // m_nb , m_bonus , m_ace
+    //
+    // TODO : determine type of dice
+    //
+    qInfo() << "selector: " << QString::number(m_selector);
+    //
+    //
+    qInfo() << "type: " << QString::number(types[m_selector]);
+    //
+    QString res = "";
+    //
+    //int tmp = qrand()%(types[m_selector])+1;
+    //
+    qInfo() << tmp;
+    //
+    // TODO : add to the input
     //
     return "";
 }

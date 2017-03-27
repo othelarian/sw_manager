@@ -110,10 +110,28 @@ void SWMDatabase::setDiceroller(QString label, int value)
     emit dicerollerChanged();
 }
 
-QString SWMDatabase::rollDice()
+void SWMDatabase::rollDice()
+{
+    m_diceroller.rollDice();
+    //
+    // TODO : see to emit an update signal
+    //
+}
+
+void SWMDatabase::clearDice()
 {
     //
     //
-    return "dice result";
+}
+
+QString SWMDatabase::outputDice()
+{
+    //
+    //
+}
+
+QString SWMDatabase::lastRollDice()
+{
+    //
     //
 }

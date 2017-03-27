@@ -28,7 +28,10 @@ public:
     Q_INVOKABLE void setInfos(const QString info,int value);
     Q_INVOKABLE QString getDiceroller();
     Q_INVOKABLE void setDiceroller(QString label,int value);
-    Q_INVOKABLE QString rollDice();
+    Q_INVOKABLE void rollDice();
+    Q_INVOKABLE void clearDice();
+    Q_INVOKABLE QString outputDice();
+    Q_INVOKABLE QString lastRollDice();
 private:
     SWMDatabase();
     static SWMDatabase* m_instance;
@@ -42,6 +45,8 @@ signals:
     //
     void infosChanged();
     void dicerollerChanged();
+    void dicerollerOutputAdded();
+    void dicerollerOutputCleared();
     //
 };
 
