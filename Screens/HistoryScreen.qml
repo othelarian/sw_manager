@@ -4,13 +4,12 @@ Item {
     anchors.top: parent.top; anchors.topMargin: 50
     anchors.left: parent.left; anchors.leftMargin: 10
     // functions
-    function initChars() {
+    function initHistory() {
         //
-        console.log("init characters")
+        console.log("init history")
         //
     }
     // elements
     //
-    Text { text: "characters screen" }
     //
 }

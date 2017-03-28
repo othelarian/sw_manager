@@ -41,7 +41,12 @@ void SWMDatabase::openDatabase(QString path,bool create)
         if (query.value(nameNo).toString() == "title") m_infos.title = query.value(valueNo).toString();
         else if (query.value(nameNo).toString().endsWith("dice")) {
             QString label = query.value(nameNo).toString(); label.chop(4);
-            m_diceroller.setParameter(label,query.value(valueNo).toInt());
+            //m_diceroller.setParameter(label,query.value(valueNo).toInt());
+            //
+            // TODO : init the diceMgr
+            //
+            DiceRoller::getInstance()->setParameter(label,query.value(valueNo).toInt(),false);
+            //
         }
         //
         // TODO : get the others paramaters
@@ -92,46 +97,13 @@ void SWMDatabase::setInfos(QString info, int value)
     //
 }
 
-// DICEROLLERS METHODS #############
+// PARAMETERS METHODS ##############
 
-QString SWMDatabase::getDiceroller() { return m_diceroller.getParameters(); }
-
-void SWMDatabase::setDiceroller(QString label, int value)
+void SWMDatabase::saveParameter(QString name, QString value)
 {
-    //
-    qInfo() << label << " : " << value;
-    //
     QSqlQuery query;
-    query.prepare("UPDATE parameters SET value=:value WHERE name=:label;");
+    query.prepare("UPDATE parameters SET value=:value WHERE name=:name;");
     query.bindValue(":value",value);
-    query.bindValue(":label",label+"dice");
+    query.bindValue(":name",name);
     query.exec();
-    m_diceroller.setParameter(label,value);
-    emit dicerollerChanged();
-}
-
-void SWMDatabase::rollDice()
-{
-    m_diceroller.rollDice();
-    //
-    // TODO : see to emit an update signal
-    //
-}
-
-void SWMDatabase::clearDice()
-{
-    //
-    //
-}
-
-QString SWMDatabase::outputDice()
-{
-    //
-    //
-}
-
-QString SWMDatabase::lastRollDice()
-{
-    //
-    //
 }

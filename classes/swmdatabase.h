@@ -6,6 +6,7 @@
 #include <QUrl>
 #include <QSqlQuery>
 #include <QSqlRecord>
+#include <QVariant>
 
 //#include <QSqlError>
 
@@ -26,27 +27,18 @@ public:
     Q_INVOKABLE QString getInfos();
     Q_INVOKABLE void setInfos(const QString info,const QString value);
     Q_INVOKABLE void setInfos(const QString info,int value);
-    Q_INVOKABLE QString getDiceroller();
-    Q_INVOKABLE void setDiceroller(QString label,int value);
-    Q_INVOKABLE void rollDice();
-    Q_INVOKABLE void clearDice();
-    Q_INVOKABLE QString outputDice();
-    Q_INVOKABLE QString lastRollDice();
+    void saveParameter(QString name,QString value);
 private:
     SWMDatabase();
     static SWMDatabase* m_instance;
     QSqlDatabase m_db;
     struct gameInfos m_infos;
-    DiceRoller m_diceroller;
     //
     // TODO : add deck class
     //
 signals:
     //
-    void infosChanged();
-    void dicerollerChanged();
-    void dicerollerOutputAdded();
-    void dicerollerOutputCleared();
+    //void infosChanged();
     //
 };
 

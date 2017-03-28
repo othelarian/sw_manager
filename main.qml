@@ -5,6 +5,8 @@ import QtQuick.Dialogs 1.2 as D
 
 import "Screens"
 
+import "Scripts/core.js" as Core
+
 Window {
     id: root
     visible: true
@@ -17,66 +19,9 @@ Window {
     property string dbpath
     property bool loaded: false
     // functions
-    function loadgame() {
-        swmdb.openDatabase(dbpath,createdbStatus)
-        var infos = swmdb.getInfos()
-        //
-        // TODO : parse the infos
-        //
-        gameTitle.text = infos
-        infosIn1.titleLab = infos
-        //
-        loaded = true
-        mainStack.push(gameScreen)
-    }
-    function gameStackChange(screen) {
-        // initialize a game screen if needed
-        if (gameStack.screenPop[screen] === -1) {
-            //
-            // TODO : call the init
-            //
-            switch (screen) {
-            case "diceroller": dicerollerIn1.initDice(); dicerollerIn2.initDice(); break
-                //
-            }
-            //
-            //
-            gameStack.screenPop[screen] = 0
-        }
-        // open / close a game screen
-        if (gameStack.screenPop[screen] === 0) {
-            if (gameStack.screenPop.current != "") gameStack.screenPop[gameStack.screenPop.current] = 0
-            gameStack.screenPop.current = screen
-            gameStack.screenPop[screen] = 1
-            switch (screen) {
-            case "diceroller": gameStack.push(dicerollerScreen); break;
-            case "deck": gameStack.push(deckScreen); break;
-            case "rules": gameStack.push(rulesScreen); break;
-            case "chars": gameStack.push(charsScreen); break;
-            case "extras": gameStack.push(extrasScreen); break;
-                //
-                //
-            }
-        }
-        else if (gameStack.screenPop[screen] === 1) {
-            gameStack.screenPop.current = ""
-            gameStack.screenPop[screen] = 0
-            gameStack.pop(gameinfosScreen)
-        }
-    }
-    function gameStackSeparate(screen) {
-        if (gameStack.screenPop[screen] === 2) return
-        else if (gameStack.screenPop[screen] == 1) gameStackChange(screen)
-        gameStack.screenPop[screen] = 2
-        switch (screen) {
-        case "diceroller": dicerollerWin.show(); break
-        case "deck": deckWin.show(); break
-        case "rules": rulesWin.show(); break
-        case "chars": charsWin.show(); break
-            //
-        }
-    }
-    function gameStackReintegrate(screen) { gameStack.screenPop[screen] = 0 }
+    function gameStackChange(screen) { Core.gameStackChange(screen) }
+    function gameStackSeparate(screen) { Core.gameStackSeparate(screen) }
+    function gameStackReintegrate(screen) { Core.gameStackReintegrate(screen) }
     // main stack
     StackView {
         id: mainStack
@@ -128,7 +73,7 @@ Window {
         Item {
             id: gameScreen
             visible: false
-            property int btnwidth: 75
+            property int btnwidth: 80
             property int btnheight: 22
             Label {
                 id: gameTitle
@@ -143,13 +88,6 @@ Window {
                 anchors.left: parent.left; anchors.leftMargin: 40
                 anchors.right: parent.right; anchors.rightMargin: 100
                 initialItem: gameinfosScreen
-                // game screens properties
-                property var screenPop: {
-                    "current": "",
-                    "diceroller": -1, "deck": -1, "rules": -1,
-                    "chars": -1, "extras": -1, "location": -1,
-                    "history": -1, "stories": -1, "sessions": -1
-                }
                 // animation of the stack
                 Transition {
                     id: enterAnim
@@ -173,31 +111,11 @@ Window {
                 GameScreen { id: deckScreen; title: "Deck"; link: "deck"; DeckScreen { id: deckIn1 } }
                 GameScreen { id: rulesScreen; title: "Rules"; link: "rules"; RulesScreen { id: rulesIn1 } }
                 GameScreen { id: charsScreen; title: "Characters"; link: "chars"; CharsScreen { id: charsIn1 } }
-                GameScreen {
-                    id: extrasScreen
-                    title: "Bestiary"
-                    //
-                }
-                GameScreen {
-                    id: locationScreen
-                    title: "Locations"
-                    //
-                }
-                GameScreen {
-                    id: historyScreen
-                    title: "History"
-                    //
-                }
-                GameScreen {
-                    id: storiesScreen
-                    title: "Stories"
-                    //
-                }
-                GameScreen {
-                    id: sessionsScreen
-                    title: "Sessions"
-                    //
-                }
+                GameScreen { id: extrasScreen; title: "Bestiary"; link: "extras"; ExtrasScreen { id: extrasIn1 } }
+                GameScreen { id: locationsScreen; title: "Locations"; link: "locations"; LocationsScreen { id: locationsIn1 } }
+                GameScreen { id: historyScreen; title: "History"; link: "history"; HistoryScreen { id: historyIn1 } }
+                GameScreen { id: storiesScreen; title: "Stories"; link: "stories"; StoriesScreen { id: storiesIn1 } }
+                GameScreen { id: sessionsScreen; title: "Sessions"; link: "sessions"; SessionsScreen { id: sessionsIn1 } }
             }
             // right side menu
             Column {
@@ -208,68 +126,52 @@ Window {
                 Button {
                     width: gameScreen.btnwidth; height: gameScreen.btnheight
                     text: "Roll"
-                    onClicked: { gameStackChange("diceroller") }
+                    onClicked: { Core.gameStackChange("diceroller") }
                 }
                 Button {
                     width: gameScreen.btnwidth; height: gameScreen.btnheight
                     text: "Deck"
-                    onClicked: { gameStackChange("deck") }
+                    onClicked: { Core.gameStackChange("deck") }
                 }
                 Button {
                     width: gameScreen.btnwidth; height: gameScreen.btnheight
                     text: "Rules"
-                    onClicked: { gameStackChange("rules") }
+                    onClicked: { Core.gameStackChange("rules") }
                 }
                 Button {
                     width: gameScreen.btnwidth; height: gameScreen.btnheight
                     text: "Chars"
-                    onClicked: { gameStackChange("chars") }
+                    onClicked: { Core.gameStackChange("chars") }
                 }
                 Button {
                     width: gameScreen.btnwidth; height: gameScreen.btnheight
                     text: "Bestiary"
-                    onClicked: { gameStackChange("extras") }
+                    onClicked: { Core.gameStackChange("extras") }
                 }
                 Button {
                     width: gameScreen.btnwidth; height: gameScreen.btnheight
-                    text: "Location"
-                    onClicked: { gameStackChange("location") }
+                    text: "Locations"
+                    onClicked: { Core.gameStackChange("locations") }
                 }
                 Button {
                     width: gameScreen.btnwidth; height: gameScreen.btnheight
                     text: "History"
-                    //
+                    onClicked: { Core.gameStackChange("history") }
                 }
                 Button {
                     width: gameScreen.btnwidth; height: gameScreen.btnheight
                     text: "Stories"
-                    //
+                    onClicked: { Core.gameStackChange("stories") }
                 }
                 Button {
                     width: gameScreen.btnwidth; height: gameScreen.btnheight
                     text: "Sessions"
-                    //
+                    onClicked: { Core.gameStackChange("sessions") }
                 }
                 Button {
                     width: gameScreen.btnwidth;height: gameScreen.btnheight
                     text: "Close"
-                    onClicked: {
-                        if (gameStack.screenPop.diceroller === 2) dicerollerWin.close()
-                        if (gameStack.screenPop.deck === 2) deckWin.close()
-                        if (gameStack.screenPop.rules === 2) rulesWin.close()
-                        if (gameStack.screenPop.chars === 2) charsWin.close()
-                        //
-                        // TODO : close all opened window
-                        //
-                        var lstlinks = ["diceroller","deck","rules",
-                                        "chars","extras","location",
-                                        "history","stories","sessions"]
-                        for (var i=0;i<lstlinks.length;i++) {
-                            if (gameStack.screenPop[lstlinks[i]] == 1) gameStackChange(lstlinks[i])
-                            gameStack.screenPop[lstlinks[i]] = -1
-                        }
-                        swmdb.closeDatabase(); loaded = false; mainStack.pop()
-                    }
+                    onClicked: { Core.closegame() }
                 }
             }
         }
@@ -279,9 +181,11 @@ Window {
     WindowScreen { id: deckWin; title: "Deck"; link: "deck"; DeckScreen { id: deckIn2 } }
     WindowScreen { id: rulesWin; title: "Rules"; link: "rules"; RulesScreen { id: rulesIn2 } }
     WindowScreen { id: charsWin; title: "Characters"; link: "chars"; CharsScreen { id: charsIn2 } }
-    //
-    // TODO : add the other wins
-    //
+    WindowScreen { id: extrasWin; title: "Bestiary"; link: "extras"; ExtrasScreen { id: extrasIn2 } }
+    WindowScreen { id: locationsWin; title: "Locations"; link: "locations"; LocationsScreen { id: locationsIn2 } }
+    WindowScreen { id: historyWin; title: "History"; link: "history"; HistoryScreen { id: historyIn2 } }
+    WindowScreen { id: storiesWin; title: "Stories"; link: "stories"; StoriesScreen { id: storiesIn2 } }
+    WindowScreen { id: sessionsWin; title: "Sessions"; link: "sessions"; SessionsScreen { id: sessionsIn2 } }
     // select / create database dialog
     D.FileDialog {
         id: dbDialog
@@ -289,7 +193,7 @@ Window {
         onAccepted: {
             dbpath = fileUrl
             if (createdbStatus) nameDialog.open()
-            else loadgame()
+            else Core.loadgame()
         }
     }
     // enter the name of the game file
@@ -300,7 +204,7 @@ Window {
         onAccepted: {
             if (nameTextField.text == "") return
             dbpath += "/"+nameTextField.text+".swdb"
-            loadgame()
+            Core.loadgame()
         }
         Column {
             spacing: 4

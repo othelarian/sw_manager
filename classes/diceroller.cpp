@@ -2,8 +2,39 @@
 
 #include <QDebug>
 
+// DICE OUTPUT ######################
+
+DiceOutput::DiceOutput(QObject *parent) : QObject(parent) {}
+
+DiceOutput::DiceOutput(int outorder, const QString &value, QObject *parent) : QObject(parent)
+{
+    m_outorder = outorder;
+    m_value = value;
+}
+
+int DiceOutput::outorder() { return m_outorder; }
+
+QString DiceOutput::value() { return m_value; }
+
+// DICEROLLER #######################
+
+DiceRoller* DiceRoller::m_instance = nullptr;
+
 DiceRoller::DiceRoller()
 {
+    //
+    // TEST
+    m_outputs.append(new DiceOutput(0,"test 0"));
+    m_outputs.append(new DiceOutput(1,"test 1"));
+    m_outputs.append(new DiceOutput(2,"test 2"));
+    // TEST
+    //
+}
+
+DiceRoller* DiceRoller::getInstance()
+{
+    if (m_instance == nullptr) m_instance = new DiceRoller();
+    return m_instance;
 }
 
 QString DiceRoller::genRollDice(int nb,int bonus,int selector,bool ace)
@@ -11,8 +42,11 @@ QString DiceRoller::genRollDice(int nb,int bonus,int selector,bool ace)
     int types[] = {2,3,4,6,8,10,12,20,100};
     QString res = "";
     //
-    int tmp = 0;
+    qInfo() << "type: " << types[selector];
     //
+    int tmp = qrand()%types[selector]+1;
+    //
+    qInfo() << "res = " << tmp;
     //
     return "";
     //
@@ -25,16 +59,17 @@ QString DiceRoller::rollDice()
     //
     // TODO : determine type of dice
     //
-    qInfo() << "selector: " << QString::number(m_selector);
+    qInfo() << "selector: " << m_selector;
     //
     //
-    qInfo() << "type: " << QString::number(types[m_selector]);
     //
     QString res = "";
     //
     //int tmp = qrand()%(types[m_selector])+1;
     //
-    qInfo() << tmp;
+    //qInfo() << tmp;
+    //
+    genRollDice(m_nb,m_bonus,m_selector,m_ace);
     //
     // TODO : add to the input
     //
@@ -49,10 +84,16 @@ QString DiceRoller::getParameters()
     return params.join(",");
 }
 
-void DiceRoller::setParameter(QString name, int value)
+void DiceRoller::setParameter(QString name, int value, bool save)
 {
     if (name == "nb") m_nb = value;
     else if (name == "bonus") m_bonus = value;
     else if (name == "selector") m_selector = value;
     else if (name == "ace") m_ace = (value == 0)? false : true;
+    if (save) SWMDatabase::getInstance()->saveParameter(name+"dice",QString::number(value));
+}
+
+QQmlListProperty<DiceOutput> DiceRoller::getOutputs()
+{
+    return QQmlListProperty<DiceOutput>(this,m_outputs);
 }

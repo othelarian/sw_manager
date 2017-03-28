@@ -5,7 +5,11 @@ Item {
     anchors.top: parent.top; anchors.topMargin: 50
     anchors.left: parent.left; anchors.leftMargin: 10
     // functions
-    //
+    function initDeck() {
+        //
+        console.log("init deck")
+        //
+    }
     // elements
     Row {
         spacing: 10

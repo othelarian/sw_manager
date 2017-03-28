@@ -8,5 +8,11 @@
         <file>Screens/WindowScreen.qml</file>
         <file>Screens/RulesScreen.qml</file>
         <file>Screens/CharsScreen.qml</file>
+        <file>Scripts/core.js</file>
+        <file>Screens/ExtrasScreen.qml</file>
+        <file>Screens/LocationsScreen.qml</file>
+        <file>Screens/HistoryScreen.qml</file>
+        <file>Screens/StoriesScreen.qml</file>
+        <file>Screens/SessionsScreen.qml</file>
     </qresource>
 </RCC>
