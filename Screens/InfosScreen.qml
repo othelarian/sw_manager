@@ -20,8 +20,14 @@ Item {
         spacing: 4
         Row {
             spacing: 4
-            Label { text: "Name of the game:"; width: labWidth }
-            Label { text: titleLab; visible: !titleEdit }
+            Label {
+                text: "Name of the game:"; width: labWidth
+                anchors.verticalCenter: parent.verticalCenter
+            }
+            Label {
+                text: titleLab; visible: !titleEdit
+                anchors.verticalCenter: parent.verticalCenter
+            }
             TextField {
                 id: titleField
                 visible: titleEdit

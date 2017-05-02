@@ -6,6 +6,7 @@
 
 #include "classes/swmdatabase.h"
 #include "classes/diceroller.h"
+#include "classes/deck.h"
 
 int main(int argc, char *argv[])
 {

@@ -7,31 +7,16 @@ Item {
     anchors.left: parent.left; anchors.leftMargin: 10
     // properties
     property bool init
-    property bool maj: false
     // functions
     function initDice() {
         init = true
-        updateDice()
-        //
-        // TODO : get the outputs
-        //
-        init = false
-    }
-    function updateDice() {
         var params = diceMgr.getParameters().split(",")
         nbdice.value = parseInt(params[0])
         bonusdice.value = parseInt(params[1])
         selectordice.currentIndex = parseInt(params[2])
         acedice.checked = (params[3] === "true")? true : false
+        init = false
     }
-    function changeDice(label,value) { diceMgr.setParameter(label,value) }
-    function rollDice() { diceMgr.rollDice() }
-    function clearDice() {
-        //
-        console.log("clear dice")
-        //
-    }
-    // elements
     // dice form
     Grid {
         id: diceForm
@@ -43,25 +28,33 @@ Item {
         SpinBox {
             id: nbdice
             value: 1; from: 1; to: 100
-            height: gameScreen.btnheight; editable: true
+            height: gameScreen.btnheight
+            width: 100
+            editable: true
             font.pointSize: 10
             validator: IntValidator { bottom: 1; top: 100 }
-            onValueChanged: { if (!init) changeDice("nb",value) }
+            onValueChanged: { if (!init) diceMgr.setParameter("nb",value) }
+            up.indicator.width: 30
+            down.indicator.width: 30
         }
         Label { text: "Bonus/Malus:" }
         SpinBox {
             id: bonusdice
             value: 0; from: -100; to: 100
-            height: gameScreen.btnheight; editable: true
+            height: gameScreen.btnheight
+            width: 100
+            editable: true
             font.pointSize: 10
             validator: IntValidator { bottom: -100; top: 100 }
-            onValueChanged: { if (!init) changeDice("bonus",value) }
+            onValueChanged: { if (!init) diceMgr.setParameter("bonus",value) }
+            up.indicator.width: 30
+            down.indicator.width: 30
         }
         ComboBox {
             id: selectordice
             width: 90; height: gameScreen.btnheight
             model: ["d2","d3","d4","d6","d8","d10","d12","d20","d100"]
-            onActivated: { if (!init) changeDice("selector",currentIndex) }
+            onActivated: { if (!init) diceMgr.setParameter("selector",currentIndex) }
         }
         CheckBox {
             id: acedice
@@ -73,17 +66,17 @@ Item {
                 width: gameScreen.btnheight-2
                 height: gameScreen.btnheight-2
             }
-            onCheckedChanged: { if (!init) changeDice("ace",(checked)? 1 : 0) }
+            onCheckedChanged: { if (!init) diceMgr.setParameter("ace",(checked)? 1 : 0) }
         }
         Button {
               height: gameScreen.btnheight
               text: "Roll"
-              onClicked: { rollDice() }
+              onClicked: diceMgr.rollDice()
           }
         Button {
             height: gameScreen.btnheight
             text: "Clear"
-            onClicked: { clearDice() }
+            onClicked: diceMgr.clearOutput(true)
         }
     }
     // dice output
@@ -93,25 +86,19 @@ Item {
         interactive: true
         spacing: 4
         model: diceMgr.outputs
-        //
         delegate: Row {
-            //property int order: id
             anchors.horizontalCenter: parent.horizontalCenter
             Rectangle {
-                //
                 width: 200
                 height: 22
-                color: "red"
-                //
-                Text { text: value }
-                //
+                color: "#f0f0f0"
+                Text { x: 5; text: value; anchors.verticalCenter: parent.verticalCenter }
               }
-              //
               Button {
                   width: gameScreen.btnheight
                   height: gameScreen.btnheight
                   text: "X"
-                  //
+                  onClicked: diceMgr.removeOutput(index,outorder)
               }
           }
       }

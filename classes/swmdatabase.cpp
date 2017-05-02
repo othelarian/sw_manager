@@ -18,6 +18,7 @@ SWMDatabase* SWMDatabase::getInstance()
 
 void SWMDatabase::openDatabase(QString path,bool create)
 {
+    DiceRoller* diceroller = DiceRoller::getInstance();
     m_db.setDatabaseName(QUrl(path).toLocalFile());
     m_db.open();
     QSqlQuery query;
@@ -25,13 +26,18 @@ void SWMDatabase::openDatabase(QString path,bool create)
     if (create) {
         query.exec("CREATE TABLE parameters (name TEXT,value TEXT);");
         query.exec("CREATE TABLE outputs (type TEXT,value TEXT,outorder INT);");
-        query.exec("CREATE TABLE decks (name TEXT,cardorder INT,value INT);");
+        query.exec("CREATE TABLE decks (name TEXT,cardorder TEXT,curridx INT);");
         QStringList values;
         values << "('title','Untitled')";
         values << "('nbdice','1')" << "('bonusdice','0')";
         values << "('selectordice','0')" << "('acedice','0')";
         //
         query.exec("INSERT INTO parameters VALUES"+values.join(",")+";");
+        //
+        values.clear();
+        for (int i = 0;i<54;i++) { values.append(QString::number(i)); }
+        //
+        query.exec("INSERT INTO decks VALUES('basicdeck','"+values.join(",")+"',-1);");
     }
     // initialize the parameters
     query.exec("SELECT * FROM parameters;");
@@ -41,19 +47,21 @@ void SWMDatabase::openDatabase(QString path,bool create)
         if (query.value(nameNo).toString() == "title") m_infos.title = query.value(valueNo).toString();
         else if (query.value(nameNo).toString().endsWith("dice")) {
             QString label = query.value(nameNo).toString(); label.chop(4);
-            //m_diceroller.setParameter(label,query.value(valueNo).toInt());
-            //
-            // TODO : init the diceMgr
-            //
-            DiceRoller::getInstance()->setParameter(label,query.value(valueNo).toInt(),false);
-            //
+            diceroller->setParameter(label,query.value(valueNo).toInt(),false);
         }
         //
         // TODO : get the others paramaters
         //
     }
+    // initialize outputs
+    diceroller->clearOutput();
+    query.exec("SELECT * FROM outputs WHERE type='basicdice' ORDER BY outorder;");
+    int outorderNo = query.record().indexOf("outorder");
+    int outvalueNo = query.record().indexOf("value");
+    while (query.next()) {
+        diceroller->addOutput(query.value(outorderNo).toInt(),query.value(outvalueNo).toString());
+    }
     //
-    // TODO : get the outputs
     //
 }
 
@@ -95,6 +103,35 @@ void SWMDatabase::setInfos(QString info, int value)
     //
     qInfo("int setinfos");
     //
+}
+
+// OUTPUTS GETTERS / SETTERS #######
+
+void SWMDatabase::setOutput(QString type,int outorder,QString value)
+{
+    QSqlQuery query;
+    query.prepare("INSERT INTO outputs VALUES(:type,:value,:outorder);");
+    query.bindValue(":type",type);
+    query.bindValue(":value",value);
+    query.bindValue(":outorder",outorder);
+    query.exec();
+}
+
+void SWMDatabase::removeOutput(QString type, int outorder)
+{
+    QSqlQuery query;
+    query.prepare("DELETE FROM outputs WHERE type=:type AND outorder=:outorder;");
+    query.bindValue(":type",type);
+    query.bindValue(":outorder",outorder);
+    query.exec();
+}
+
+void SWMDatabase::clearOutput(QString type)
+{
+    QSqlQuery query;
+    query.prepare("DELETE FROM outputs WHERE type=:type;");
+    query.bindValue(":type",type);
+    query.exec();
 }
 
 // PARAMETERS METHODS ##############

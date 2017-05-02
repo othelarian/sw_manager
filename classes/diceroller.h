@@ -5,6 +5,7 @@
 #include <QVariant>
 #include <QList>
 #include <QQmlListProperty>
+#include <QtMath>
 
 #include "swmdatabase.h"
 
@@ -22,10 +23,8 @@ private:
     int m_outorder;
     QString m_value;
 signals:
-    //
     void outorderChanged();
     void valueChanged();
-    //
 };
 
 class DiceRoller : public QObject
@@ -34,13 +33,14 @@ class DiceRoller : public QObject
     Q_PROPERTY(QQmlListProperty<DiceOutput> outputs READ getOutputs NOTIFY outputsChanged)
 public:
     static DiceRoller* getInstance();
-    static QString genRollDice(int nb,int bonus,int selector,bool ace);
-    Q_INVOKABLE QString rollDice();
+    static int genRollDice(int nb,int bonus,int selector,bool ace);
+    Q_INVOKABLE void clearOutput(bool deep = false);
+    Q_INVOKABLE void removeOutput(int index,int outorder);
+    Q_INVOKABLE void rollDice();
     Q_INVOKABLE QString getParameters();
     Q_INVOKABLE void setParameter(QString name,int value,bool save = true);
-    //
+    void addOutput(int outorder,QString value);
     Q_INVOKABLE QQmlListProperty<DiceOutput> getOutputs();
-    //
 private:
     DiceRoller();
     static DiceRoller* m_instance;
@@ -48,13 +48,10 @@ private:
     int m_bonus;
     int m_selector;
     bool m_ace;
-    //
+    int m_order;
     QList<DiceOutput*> m_outputs;
-    //
 signals:
-    //
     void outputsChanged();
-    //
 };
 
 #endif // DICEROLLER_H

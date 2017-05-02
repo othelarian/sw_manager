@@ -27,7 +27,7 @@ Window {
         id: mainStack
         anchors.fill: parent
         initialItem: welcomeView
-        // welcome screena
+        // welcome screen
         Item {
             id: welcomeView
             Column {

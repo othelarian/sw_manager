@@ -1,7 +1,5 @@
 #include "diceroller.h"
 
-#include <QDebug>
-
 // DICE OUTPUT ######################
 
 DiceOutput::DiceOutput(QObject *parent) : QObject(parent) {}
@@ -20,16 +18,7 @@ QString DiceOutput::value() { return m_value; }
 
 DiceRoller* DiceRoller::m_instance = nullptr;
 
-DiceRoller::DiceRoller()
-{
-    //
-    // TEST
-    m_outputs.append(new DiceOutput(0,"test 0"));
-    m_outputs.append(new DiceOutput(1,"test 1"));
-    m_outputs.append(new DiceOutput(2,"test 2"));
-    // TEST
-    //
-}
+DiceRoller::DiceRoller() { }
 
 DiceRoller* DiceRoller::getInstance()
 {
@@ -37,43 +26,49 @@ DiceRoller* DiceRoller::getInstance()
     return m_instance;
 }
 
-QString DiceRoller::genRollDice(int nb,int bonus,int selector,bool ace)
+int DiceRoller::genRollDice(int nb,int bonus,int selector,bool ace)
 {
     int types[] = {2,3,4,6,8,10,12,20,100};
-    QString res = "";
-    //
-    qInfo() << "type: " << types[selector];
-    //
-    int tmp = qrand()%types[selector]+1;
-    //
-    qInfo() << "res = " << tmp;
-    //
-    return "";
-    //
+    int tmp = 0;
+    int res = 0;
+    for (int i = 0;i<nb;i++) {
+        tmp = qFloor(qrand()%types[selector])+1;
+        res += tmp;
+        while (ace && tmp == types[selector]) {
+            tmp = qFloor(qrand()%types[selector])+1;
+            res += tmp;
+        }
+    }
+    res += bonus;
+    return res;
 }
 
-QString DiceRoller::rollDice()
+void DiceRoller::clearOutput(bool deep) {
+    if (deep) { SWMDatabase::getInstance()->clearOutput("basicdice"); }
+    m_order = 0;
+    m_outputs.clear();
+    outputsChanged();
+}
+
+void DiceRoller::removeOutput(int index,int outorder)
 {
-    //
-    // m_nb , m_bonus , m_ace
-    //
-    // TODO : determine type of dice
-    //
-    qInfo() << "selector: " << m_selector;
-    //
-    //
-    //
-    QString res = "";
-    //
-    //int tmp = qrand()%(types[m_selector])+1;
-    //
-    //qInfo() << tmp;
-    //
-    genRollDice(m_nb,m_bonus,m_selector,m_ace);
-    //
-    // TODO : add to the input
-    //
-    return "";
+    m_outputs.removeAt(index);
+    SWMDatabase::getInstance()->removeOutput("basicdice",outorder);
+    outputsChanged();
+}
+
+void DiceRoller::rollDice()
+{
+    int types[] = {2,3,4,6,8,10,12,20,100};
+    QString res = QString::number(m_nb) + "d" + QString::number(types[m_selector]);
+    res += (m_bonus > 0)? "+" : "";
+    res += QString::number(m_bonus) + ": ";
+    res += QString::number(genRollDice(m_nb,m_bonus,m_selector,m_ace));
+    res += (m_ace)? " (ace)" : "";
+    m_order++;
+    m_outputs.append(new DiceOutput(m_order,res));
+    SWMDatabase::getInstance()->setOutput("basicdice",m_order,res);
+    outputsChanged();
 }
 
 QString DiceRoller::getParameters()
@@ -91,6 +86,13 @@ void DiceRoller::setParameter(QString name, int value, bool save)
     else if (name == "selector") m_selector = value;
     else if (name == "ace") m_ace = (value == 0)? false : true;
     if (save) SWMDatabase::getInstance()->saveParameter(name+"dice",QString::number(value));
+}
+
+void DiceRoller::addOutput(int outorder, QString value)
+{
+    m_outputs.append(new DiceOutput(outorder,value));
+    m_order = outorder;
+    outputsChanged();
 }
 
 QQmlListProperty<DiceOutput> DiceRoller::getOutputs()
