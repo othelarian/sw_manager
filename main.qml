@@ -118,60 +118,31 @@ Window {
                 GameScreen { id: sessionsScreen; title: "Sessions"; link: "sessions"; SessionsScreen { id: sessionsIn1 } }
             }
             // right side menu
-            Column {
+            ListView {
                 width: gameScreen.btnwidth
                 anchors.right: parent.right; anchors.rightMargin: 0
                 anchors.top: parent.top; anchors.topMargin: 20
+                anchors.bottom: parent.bottom; anchors.bottomMargin: 20
                 spacing: 4
-                Button {
-                    width: gameScreen.btnwidth; height: gameScreen.btnheight
-                    text: "Roll"
-                    onClicked: { Core.gameStackChange("diceroller") }
+                model: ListModel {
+                    ListElement { btnlab: "Roll"; cmd: "diceroller" }
+                    ListElement { btnlab: "Deck"; cmd: "deck" }
+                    ListElement { btnlab: "Rules"; cmd: "rules" }
+                    ListElement { btnlab: "Chars"; cmd: "chars" }
+                    ListElement { btnlab: "Bestiary"; cmd: "extras" }
+                    ListElement { btnlab: "Locations"; cmd: "locations" }
+                    ListElement { btnlab: "History"; cmd: "history" }
+                    ListElement { btnlab: "Stories"; cmd: "stories" }
+                    ListElement { btnlab: "Sessions"; cmd: "sessions" }
+                    ListElement { btnlab: "Close"; cmd: "close" }
                 }
-                Button {
+                delegate: Button {
                     width: gameScreen.btnwidth; height: gameScreen.btnheight
-                    text: "Deck"
-                    onClicked: { Core.gameStackChange("deck") }
-                }
-                Button {
-                    width: gameScreen.btnwidth; height: gameScreen.btnheight
-                    text: "Rules"
-                    onClicked: { Core.gameStackChange("rules") }
-                }
-                Button {
-                    width: gameScreen.btnwidth; height: gameScreen.btnheight
-                    text: "Chars"
-                    onClicked: { Core.gameStackChange("chars") }
-                }
-                Button {
-                    width: gameScreen.btnwidth; height: gameScreen.btnheight
-                    text: "Bestiary"
-                    onClicked: { Core.gameStackChange("extras") }
-                }
-                Button {
-                    width: gameScreen.btnwidth; height: gameScreen.btnheight
-                    text: "Locations"
-                    onClicked: { Core.gameStackChange("locations") }
-                }
-                Button {
-                    width: gameScreen.btnwidth; height: gameScreen.btnheight
-                    text: "History"
-                    onClicked: { Core.gameStackChange("history") }
-                }
-                Button {
-                    width: gameScreen.btnwidth; height: gameScreen.btnheight
-                    text: "Stories"
-                    onClicked: { Core.gameStackChange("stories") }
-                }
-                Button {
-                    width: gameScreen.btnwidth; height: gameScreen.btnheight
-                    text: "Sessions"
-                    onClicked: { Core.gameStackChange("sessions") }
-                }
-                Button {
-                    width: gameScreen.btnwidth;height: gameScreen.btnheight
-                    text: "Close"
-                    onClicked: { Core.closegame() }
+                    text: btnlab
+                    onClicked: {
+                        if (cmd == "close") { Core.closegame() }
+                        else { Core.gameStackChange(cmd) }
+                    }
                 }
             }
         }
